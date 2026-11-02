@@ -43,6 +43,7 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
     alternativeColumnSums,
     alternativeNormalizedMatrices,
     alternativeLocalPriorities,
+    alternativeConsistency,
     combinedAlternativeMatrix,
     evaluations,
   } = ahpResult;
@@ -52,6 +53,7 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
   const activeAltColSums = alternativeColumnSums[selectedAltCritId] || [];
   const activeAltNormMatrix = alternativeNormalizedMatrices[selectedAltCritId] || [];
   const activeAltEigenvector = alternativeLocalPriorities[selectedAltCritId] || [];
+  const activeAltCons = alternativeConsistency?.[selectedAltCritId];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -467,6 +469,82 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Sub-section: Normalisasi Matriks Alternatif per Kriteria */}
+          <div className="pt-4 border-t border-slate-200 dark:border-neutral-900 space-y-3">
+            <div className="flex items-center justify-between">
+              <h5 className="text-xs font-bold text-slate-900 dark:text-white uppercase font-mono">
+                Normalisasi Matriks Alternatif &amp; Vektor Prioritas Lokal — {currentActiveCrit.code}
+              </h5>
+              <span className="text-[11px] text-slate-500 font-mono">
+                b_ij = a_ij / JumlahKolom_j
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100 dark:bg-neutral-900 text-slate-600 dark:text-neutral-400 uppercase font-mono border-b border-slate-200 dark:border-neutral-800">
+                  <tr>
+                    <th className="py-2 px-3 w-16">Kode</th>
+                    <th className="py-2 px-3 min-w-[140px]">Alternatif</th>
+                    {alternatives.map((alt) => (
+                      <th key={alt.id} className="py-2 px-3 text-center">
+                        {alt.code}
+                      </th>
+                    ))}
+                    <th className="py-2 px-4 text-center bg-blue-100 dark:bg-neutral-800 text-blue-900 dark:text-white font-bold min-w-[130px]">
+                      Vektor Prioritas (Eigenvector)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-neutral-900 text-slate-700 dark:text-neutral-300 font-mono">
+                  {alternatives.map((rowAlt, i) => {
+                    const localWeight = activeAltEigenvector[i] ?? 0;
+                    return (
+                      <tr key={rowAlt.id} className="hover:bg-slate-50/70 dark:hover:bg-neutral-900/50">
+                        <td className="py-2 px-3 font-bold text-blue-700 dark:text-blue-400">{rowAlt.code}</td>
+                        <td className="py-2 px-3 font-sans font-medium text-slate-900 dark:text-white">{rowAlt.name}</td>
+                        {alternatives.map((colAlt, j) => (
+                          <td key={colAlt.id} className="py-2 px-3 text-center">
+                            {(activeAltNormMatrix[i]?.[j] ?? 0).toFixed(4)}
+                          </td>
+                        ))}
+                        <td className="py-2 px-4 text-center font-bold text-blue-800 dark:text-blue-400 bg-blue-50 dark:bg-neutral-900">
+                          {localWeight.toFixed(4)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Consistency Check metrics for current criterion alternative matrix */}
+            {activeAltCons && (
+              <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-900 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center space-x-2">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase ${
+                      activeAltCons.isConsistent
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                        : 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                    }`}
+                  >
+                    {activeAltCons.isConsistent ? 'KONSISTEN' : 'TIDAK KONSISTEN'}
+                  </span>
+                  <span className="text-slate-700 dark:text-neutral-300 font-medium">
+                    Konsistensi Pairwise Alternatif ({currentActiveCrit.code}): CR = <strong className="font-mono">{activeAltCons.cr.toFixed(4)}</strong>
+                  </span>
+                </div>
+                <div className="flex items-center space-x-4 font-mono text-[11px] text-slate-600 dark:text-neutral-400">
+                  <span>λmax = {activeAltCons.lambdaMax.toFixed(4)}</span>
+                  <span>CI = {activeAltCons.ci.toFixed(4)}</span>
+                  <span>RI = {activeAltCons.ri.toFixed(2)}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">CR = {activeAltCons.cr.toFixed(4)}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -246,19 +246,6 @@ export default function App() {
     localStorage.removeItem('spk_ulos_alt_matrices_v2');
   };
 
-  // Sync AHP eigenvector weights to SAW weights
-  const handleApplyAhpWeightsToSaw = () => {
-    setCriteria((prev) =>
-      prev.map((c) => {
-        const ahpWeight = ahpResult.weights[c.id];
-        return {
-          ...c,
-          weight: ahpWeight !== undefined ? ahpWeight : c.weight,
-        };
-      })
-    );
-  };
-
   // Full reset back to default
   const handleResetAllData = () => {
     if (window.confirm('Kembalikan seluruh data alternatif dan kriteria ke preset asli Sumatera Utara?')) {
@@ -294,7 +281,6 @@ export default function App() {
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
           onOpenExport={() => setIsExportOpen(true)}
-          onApplyAhpWeightsToSaw={handleApplyAhpWeightsToSaw}
         />
 
         {/* Scrollable Dashboard View */}
