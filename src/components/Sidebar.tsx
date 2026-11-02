@@ -75,11 +75,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-3.5 space-y-6">
           {/* Brand Logo / Header */}
           <div className="flex items-center space-x-3 px-1 py-1">
-            <img 
-              src="/assets/aistudio/logo_09c4f67e.png" 
-              alt="Logo Universitas Sari Mutiara Indonesia" 
-              className="w-10 h-10 object-contain shrink-0" 
-            />
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-neutral-900 border border-slate-200/90 dark:border-neutral-800 shadow-xs shrink-0 flex items-center justify-center p-1 overflow-hidden cursor-pointer">
+              <img 
+                src="/assets/aistudio/logo_09c4f67e.png" 
+                alt="Logo Universitas Sari Mutiara Indonesia" 
+                className="w-full h-full object-contain" 
+              />
+            </div>
             <div
               className={`transition-all duration-200 overflow-hidden whitespace-nowrap ${
                 isHovered ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
