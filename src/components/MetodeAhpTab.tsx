@@ -359,17 +359,17 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
           </span>
         </div>
 
-        {/* Criterion Selector Tabs */}
-        <div className="p-3 border-b border-slate-200 dark:border-neutral-900 bg-slate-100/60 dark:bg-neutral-950 flex flex-wrap gap-2">
+        {/* Criterion Selector Tabs (Scrollable on mobile) */}
+        <div className="p-2 sm:p-3 border-b border-slate-200 dark:border-neutral-900 bg-slate-100/60 dark:bg-neutral-950 flex overflow-x-auto gap-2 whitespace-nowrap scrollbar-none">
           {criteria.map((c) => {
             const isActive = c.id === selectedAltCritId;
             return (
               <button
                 key={c.id}
                 onClick={() => setSelectedAltCritId(c.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 shrink-0 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-blue-600 text-white shadow-xs font-semibold'
                     : 'bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-800 border border-slate-200 dark:border-neutral-800'
                 }`}
               >

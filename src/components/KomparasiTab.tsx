@@ -150,16 +150,16 @@ export const KomparasiTab: React.FC<KomparasiTabProps> = ({
                   isHovered ? 'bg-slate-50 dark:bg-neutral-900/60 border-slate-300 dark:border-neutral-800' : 'border-transparent'
                 }`}
               >
-                <div className="flex items-baseline justify-between mb-1.5">
-                  <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2 gap-1">
+                  <div className="flex items-center space-x-2 flex-wrap">
                     <span className="text-xs font-mono font-bold text-blue-700 dark:text-blue-400">{item.code}</span>
-                    <span className="text-xs font-semibold text-slate-800 dark:text-white">{item.name}</span>
-                    <span className="text-[11px] text-slate-400 dark:text-neutral-500">({item.location})</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{item.name}</span>
+                    <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-neutral-500">({item.location})</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-xs font-mono">
-                    <span className="text-blue-700 dark:text-blue-400 font-semibold">SAW: {item.sawScore.toFixed(4)} (Rank {item.sawRank})</span>
+                  <div className="flex items-center space-x-2.5 text-[11px] sm:text-xs font-mono">
+                    <span className="text-blue-700 dark:text-blue-400 font-semibold">SAW: {item.sawScore.toFixed(4)} (#{item.sawRank})</span>
                     <span className="text-slate-300 dark:text-neutral-700">•</span>
-                    <span className="text-indigo-700 dark:text-indigo-400 font-semibold">AHP: {item.ahpScore.toFixed(4)} (Rank {item.ahpRank})</span>
+                    <span className="text-indigo-700 dark:text-indigo-400 font-semibold">AHP: {item.ahpScore.toFixed(4)} (#{item.ahpRank})</span>
                   </div>
                 </div>
 

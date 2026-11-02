@@ -32,6 +32,7 @@ export default function App() {
   // State: Active navigation tab
   const [activeTab, setActiveTab] = useState<TabType>('komparasi');
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -262,12 +263,14 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-100 dark:bg-black font-sans text-slate-800 dark:text-neutral-100 antialiased selection:bg-neutral-800 selection:text-white transition-colors duration-200">
-      {/* Fixed Left Sidebar */}
+      {/* Sidebar (Mobile drawer + Desktop rail) */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         consistency={ahpResult.consistency}
         onResetData={handleResetAllData}
+        isMobileOpen={isMobileSidebarOpen}
+        setIsMobileOpen={setIsMobileSidebarOpen}
       />
 
       {/* Main Content Area */}
@@ -281,10 +284,11 @@ export default function App() {
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
           onOpenExport={() => setIsExportOpen(true)}
+          onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
         />
 
         {/* Scrollable Dashboard View */}
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-100/70 dark:bg-black transition-colors duration-200">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 bg-slate-100/70 dark:bg-black transition-colors duration-200">
           {activeTab === 'data' && (
             <DataMentahTab
               criteria={criteria}
