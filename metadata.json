@@ -1,0 +1,6 @@
+{
+  "name": "SPK Pemilihan Toko Ulos Pematangsiantar - SAW & AHP",
+  "description": "Sistem Pendukung Keputusan analisis perbandingan metode SAW dan AHP dalam pemilihan tempat penjualan ulos terbaik di Kota Pematangsiantar berbasis kriteria objektif, normalisasi matriks, dan uji konsistensi Saaty.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
