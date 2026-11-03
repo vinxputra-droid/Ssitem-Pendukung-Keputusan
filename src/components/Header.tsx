@@ -5,10 +5,14 @@ import {
   AlertTriangle,
   Sun,
   Moon,
-  Menu
+  Menu,
+  Share2,
+  Lock,
+  Edit3
 } from 'lucide-react';
 import { TabType } from './Sidebar';
 import { AHPConsistency } from '../types/spk';
+import { useAccess } from '../context/AccessContext';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -19,6 +23,7 @@ interface HeaderProps {
   onToggleDarkMode: () => void;
   onOpenExport: () => void;
   onOpenMobileMenu: () => void;
+  onOpenShareModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +33,10 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleDarkMode,
   onOpenExport,
   onOpenMobileMenu,
+  onOpenShareModal,
 }) => {
+  const { isEditor } = useAccess();
+
   const getTabTitle = (tab: TabType) => {
     switch (tab) {
       case 'data': return 'Data Mentah & Kriteria';
@@ -67,7 +75,40 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Area: Action Controls & Status */}
-      <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
+      <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+        {/* Role Badge Button */}
+        <button
+          onClick={onOpenShareModal}
+          className={`flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium border transition cursor-pointer ${
+            isEditor
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+              : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+          }`}
+          title={isEditor ? 'Akses Editor Aktif. Klik untuk Pengaturan Hak Akses' : 'Akses Viewer (Hanya Lihat). Klik untuk Pengaturan Hak Akses'}
+        >
+          {isEditor ? (
+            <>
+              <Edit3 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="hidden sm:inline font-semibold">Editor</span>
+            </>
+          ) : (
+            <>
+              <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="hidden sm:inline font-semibold">Viewer</span>
+            </>
+          )}
+        </button>
+
+        {/* Share Button */}
+        <button
+          onClick={onOpenShareModal}
+          className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-neutral-200 bg-slate-100 hover:bg-slate-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-slate-200 dark:border-neutral-800 transition shadow-2xs cursor-pointer"
+          title="Bagikan Tautan & Hak Akses"
+        >
+          <Share2 className="w-3.5 h-3.5 shrink-0 text-slate-600 dark:text-neutral-400" />
+          <span className="hidden md:inline">Berbagi</span>
+        </button>
+
         {/* AHP Status indicator badge */}
         <div
           className={`flex items-center space-x-1 sm:space-x-1.5 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium border ${
@@ -91,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:border dark:border-neutral-800 transition shadow-xs cursor-pointer"
         >
           <Printer className="w-3.5 h-3.5 shrink-0" />
-          <span className="hidden sm:inline">Cetak / Ekspor</span>
+          <span className="hidden sm:inline">Cetak</span>
         </button>
 
         {/* Dark Mode Toggle Button */}
@@ -111,4 +152,5 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+
 

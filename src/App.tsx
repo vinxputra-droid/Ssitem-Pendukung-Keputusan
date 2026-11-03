@@ -11,6 +11,8 @@ import { MetodeSawTab } from './components/MetodeSawTab';
 import { MetodeAhpTab } from './components/MetodeAhpTab';
 import { KomparasiTab } from './components/KomparasiTab';
 import { ExportModal } from './components/ExportModal';
+import { ShareAccessModal } from './components/ShareAccessModal';
+import { AccessProvider } from './context/AccessContext';
 
 import { Criterion, Alternative } from './types/spk';
 import { 
@@ -28,10 +30,11 @@ const STORAGE_KEYS = {
   AHP_MATRIX: 'spk_ulos_ahp_matrix_v2',
 };
 
-export default function App() {
+function MainDashboard() {
   // State: Active navigation tab
   const [activeTab, setActiveTab] = useState<TabType>('komparasi');
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Dark Mode State
@@ -285,6 +288,7 @@ export default function App() {
           onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
           onOpenExport={() => setIsExportOpen(true)}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+          onOpenShareModal={() => setIsShareOpen(true)}
         />
 
         {/* Scrollable Dashboard View */}
@@ -345,6 +349,21 @@ export default function App() {
         comparisonItems={comparison.items}
         insight={comparison.insight}
       />
+
+      {/* Share / Access Modal */}
+      <ShareAccessModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+      />
     </div>
   );
 }
+
+export default function App() {
+  return (
+    <AccessProvider>
+      <MainDashboard />
+    </AccessProvider>
+  );
+}
+

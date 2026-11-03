@@ -9,6 +9,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { AHPConsistency } from '../types/spk';
+import { useAccess } from '../context/AccessContext';
 
 export type TabType = 'data' | 'saw' | 'ahp' | 'komparasi';
 
@@ -30,6 +31,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setIsMobileOpen,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { isEditor } = useAccess();
+
+  const handleResetClick = () => {
+    if (!isEditor) {
+      alert('Aksi ini memerlukan Mode Editor. Silakan beralih ke Mode Editor melalui menu Berbagi.');
+      return;
+    }
+    onResetData();
+  };
 
   const navItems = [
     {
@@ -158,18 +168,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Mobile Footer Reset Button */}
-            <div className="pt-4 border-t border-slate-200 dark:border-neutral-900">
-              <button
-                onClick={() => {
-                  onResetData();
-                  setIsMobileOpen(false);
-                }}
-                className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 shadow-2xs"
-              >
-                <RotateCcw className="w-4 h-4 text-slate-500 dark:text-neutral-400" />
-                <span>Reset Data Preset</span>
-              </button>
-            </div>
+            {isEditor && (
+              <div className="pt-4 border-t border-slate-200 dark:border-neutral-900">
+                <button
+                  onClick={() => {
+                    handleResetClick();
+                    setIsMobileOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 shadow-2xs"
+                >
+                  <RotateCcw className="w-4 h-4 text-slate-500 dark:text-neutral-400" />
+                  <span>Reset Data Preset</span>
+                </button>
+              </div>
+            )}
           </aside>
         </div>
       )}
@@ -320,24 +332,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Bottom Footer Action */}
-          <div className="p-3 border-t border-slate-200/80 dark:border-neutral-900">
-            <button
-              onClick={onResetData}
-              title={!isHovered ? 'Reset Data' : undefined}
-              className="w-full flex items-center justify-center space-x-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-neutral-900 hover:bg-slate-100 dark:hover:bg-neutral-800 transition border border-slate-200/90 dark:border-neutral-800 shadow-2xs group"
-            >
-              <RotateCcw className="w-4 h-4 shrink-0 text-slate-500 dark:text-neutral-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
-              <span
-                className={`transition-all duration-200 overflow-hidden whitespace-nowrap ${
-                  isHovered ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
-                }`}
+          {isEditor && (
+            <div className="p-3 border-t border-slate-200/80 dark:border-neutral-900">
+              <button
+                onClick={handleResetClick}
+                title={!isHovered ? 'Reset Data Preset' : undefined}
+                className="w-full flex items-center justify-center space-x-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-neutral-900 hover:bg-slate-100 dark:hover:bg-neutral-800 transition border border-slate-200/90 dark:border-neutral-800 shadow-2xs group"
               >
-                Reset Data
-              </span>
-            </button>
-          </div>
+                <RotateCcw className="w-4 h-4 shrink-0 text-slate-500 dark:text-neutral-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
+                <span
+                  className={`transition-all duration-200 overflow-hidden whitespace-nowrap ${
+                    isHovered ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'
+                  }`}
+                >
+                  Reset Data Preset
+                </span>
+              </button>
+            </div>
+          )}
         </aside>
       </div>
     </>
   );
 };
+

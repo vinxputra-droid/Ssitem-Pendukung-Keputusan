@@ -8,9 +8,11 @@ import {
   Sparkles, 
   ArrowUpRight,
   TrendingDown,
-  TrendingUp
+  TrendingUp,
+  Lock
 } from 'lucide-react';
 import { Alternative, Criterion, CriterionType } from '../types/spk';
+import { useAccess } from '../context/AccessContext';
 
 interface DataMentahTabProps {
   criteria: Criterion[];
@@ -37,6 +39,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
   onDeleteAlternative,
   onAutoNormalizeWeights,
 }) => {
+  const { isEditor } = useAccess();
   const [showAddCritModal, setShowAddCritModal] = useState(false);
   const [showAddAltModal, setShowAddAltModal] = useState(false);
 
@@ -53,7 +56,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
 
   const handleCreateCriterion = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCritName.trim()) return;
+    if (!isEditor || !newCritName.trim()) return;
 
     const nextIndex = criteria.length + 1;
     const newCrit: Criterion = {
@@ -73,7 +76,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
 
   const handleCreateAlternative = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAltName.trim()) return;
+    if (!isEditor || !newAltName.trim()) return;
 
     const nextIndex = alternatives.length + 1;
     const initialScores: Record<string, number> = {};
@@ -98,6 +101,23 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Viewer Mode Banner */}
+      {!isEditor && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between text-amber-900 dark:text-amber-200 shadow-xs">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
+              <Lock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">Mode Viewer (Hanya Lihat)</h4>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                Formulir dan tombol edit data mentah dikunci. Beralih ke Mode Editor untuk melakukan perubahan data.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Overview Info Card */}
       <div className="bg-white dark:bg-black rounded-xl p-5 text-slate-800 dark:text-neutral-100 shadow-xs border border-slate-200/90 dark:border-neutral-900 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -112,7 +132,9 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
               Matriks Penilaian Tempat Penjualan Ulos
             </h3>
             <p className="text-xs text-slate-600 dark:text-neutral-400 max-w-3xl leading-relaxed">
-              Anda dapat mengedit nilai skor alternatif dan bobot kriteria secara real-time. Setiap perubahan angka akan langsung memicu pembaruan otomatis pada normalisasi matriks SAW, rasio konsistensi Saaty AHP, dan grafik perbandingan hasil.
+              {isEditor
+                ? 'Anda dapat mengedit nilai skor alternatif dan bobot kriteria secara real-time. Setiap perubahan angka akan langsung memicu pembaruan otomatis pada normalisasi matriks SAW, rasio konsistensi Saaty AHP, dan grafik perbandingan hasil.'
+                : 'Data mentah kriteria dan alternatif toko ulos disajikan dalam mode baca. Hasil perhitungan SAW dan AHP diperbarui secara otomatis dari data terkini.'}
             </p>
           </div>
           <div className="flex items-center space-x-3 shrink-0">
@@ -143,26 +165,28 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
-              Atur tipe benefit (semakin besar semakin baik) atau cost (semakin kecil semakin baik), serta bobot preferensi.
+              Tipe benefit (semakin besar semakin baik) atau cost (semakin kecil semakin baik), serta bobot preferensi.
             </p>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={onAutoNormalizeWeights}
-              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-800 transition font-medium"
-              title="Normalkan bobot agar total berjumlah 1.00 (100%)"
-            >
-              Normalkan Bobot (1.00)
-            </button>
-            <button
-              onClick={() => setShowAddCritModal(true)}
-              className="flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:border dark:border-neutral-800 text-white transition font-medium shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Tambah Kriteria</span>
-            </button>
-          </div>
+          {isEditor && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={onAutoNormalizeWeights}
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-800 transition font-medium"
+                title="Normalkan bobot agar total berjumlah 1.00 (100%)"
+              >
+                Normalkan Bobot (1.00)
+              </button>
+              <button
+                onClick={() => setShowAddCritModal(true)}
+                className="flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:border dark:border-neutral-800 text-white transition font-medium shadow-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Tambah Kriteria</span>
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -174,7 +198,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
                 <th className="py-2.5 px-4 w-32">Sifat / Tipe</th>
                 <th className="py-2.5 px-4 w-28">Bobot SAW (W)</th>
                 <th className="py-2.5 px-4 w-28">Proporsi</th>
-                <th className="py-2.5 px-4 w-20 text-right">Aksi</th>
+                {isEditor && <th className="py-2.5 px-4 w-20 text-right">Aksi</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-neutral-900 text-slate-700 dark:text-neutral-300">
@@ -184,42 +208,60 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
                   <tr key={crit.id} className="hover:bg-slate-50/70 dark:hover:bg-neutral-900/50 transition-colors">
                     <td className="py-3 px-4 font-mono font-semibold text-blue-700 dark:text-blue-400">{crit.code}</td>
                     <td className="py-3 px-4">
-                      <input
-                        type="text"
-                        value={crit.name}
-                        onChange={(e) => onUpdateCriterion({ ...crit, name: e.target.value })}
-                        className="w-full bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-neutral-700 focus:border-blue-500 focus:outline-hidden font-medium text-slate-900 dark:text-white py-0.5"
-                      />
+                      {isEditor ? (
+                        <input
+                          type="text"
+                          value={crit.name}
+                          onChange={(e) => onUpdateCriterion({ ...crit, name: e.target.value })}
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-neutral-700 focus:border-blue-500 focus:outline-hidden font-medium text-slate-900 dark:text-white py-0.5"
+                        />
+                      ) : (
+                        <span className="font-medium text-slate-900 dark:text-white py-0.5 block">{crit.name}</span>
+                      )}
                     </td>
                     <td className="py-3 px-4">
-                      <select
-                        value={crit.type}
-                        onChange={(e) =>
-                          onUpdateCriterion({ ...crit, type: e.target.value as CriterionType })
-                        }
-                        className={`text-xs font-semibold px-2 py-1 rounded border capitalize focus:outline-hidden ${
+                      {isEditor ? (
+                        <select
+                          value={crit.type}
+                          onChange={(e) =>
+                            onUpdateCriterion({ ...crit, type: e.target.value as CriterionType })
+                          }
+                          className={`text-xs font-semibold px-2 py-1 rounded border capitalize focus:outline-hidden ${
+                            crit.type === 'benefit'
+                              ? 'bg-emerald-50 dark:bg-neutral-900 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-neutral-800'
+                              : 'bg-amber-50 dark:bg-neutral-900 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-neutral-800'
+                          }`}
+                        >
+                          <option value="benefit">Benefit (Max)</option>
+                          <option value="cost">Cost (Min)</option>
+                        </select>
+                      ) : (
+                        <span className={`text-xs font-semibold px-2 py-1 rounded border capitalize inline-block ${
                           crit.type === 'benefit'
                             ? 'bg-emerald-50 dark:bg-neutral-900 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-neutral-800'
                             : 'bg-amber-50 dark:bg-neutral-900 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-neutral-800'
-                        }`}
-                      >
-                        <option value="benefit">Benefit (Max)</option>
-                        <option value="cost">Cost (Min)</option>
-                      </select>
+                        }`}>
+                          {crit.type}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-4">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        value={crit.weight}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value);
-                          onUpdateCriterion({ ...crit, weight: isNaN(val) ? 0 : val });
-                        }}
-                        className="w-20 px-2 py-1 rounded border border-slate-200 dark:border-neutral-800 focus:border-blue-500 focus:outline-hidden font-mono text-slate-900 dark:text-white bg-white dark:bg-black"
-                      />
+                      {isEditor ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={crit.weight}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            onUpdateCriterion({ ...crit, weight: isNaN(val) ? 0 : val });
+                          }}
+                          className="w-20 px-2 py-1 rounded border border-slate-200 dark:border-neutral-800 focus:border-blue-500 focus:outline-hidden font-mono text-slate-900 dark:text-white bg-white dark:bg-black"
+                        />
+                      ) : (
+                        <span className="font-mono font-semibold text-slate-900 dark:text-white">{crit.weight}</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-500 dark:text-neutral-400">
                       <div className="flex items-center space-x-2">
@@ -232,17 +274,19 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      {criteria.length > 2 && (
-                        <button
-                          onClick={() => onDeleteCriterion(crit.id)}
-                          className="p-1 rounded text-slate-400 dark:text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-neutral-900 transition"
-                          title="Hapus kriteria ini"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </td>
+                    {isEditor && (
+                      <td className="py-3 px-4 text-right">
+                        {criteria.length > 2 && (
+                          <button
+                            onClick={() => onDeleteCriterion(crit.id)}
+                            className="p-1 rounded text-slate-400 dark:text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-neutral-900 transition"
+                            title="Hapus kriteria ini"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -264,17 +308,19 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
-              Edit nilai kinerja setiap toko ulos pada masing-masing kriteria (Skala 1 - 100).
+              Nilai kinerja setiap toko ulos pada masing-masing kriteria (Skala 1 - 100).
             </p>
           </div>
 
-          <button
-            onClick={() => setShowAddAltModal(true)}
-            className="flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:border dark:border-neutral-800 text-white transition font-medium shadow-xs self-start sm:self-auto"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Tambah Toko Ulos</span>
-          </button>
+          {isEditor && (
+            <button
+              onClick={() => setShowAddAltModal(true)}
+              className="flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:border dark:border-neutral-800 text-white transition font-medium shadow-xs self-start sm:self-auto"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Toko Ulos</span>
+            </button>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -291,7 +337,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
                     </div>
                   </th>
                 ))}
-                <th className="py-2.5 px-3 w-16 text-right">Aksi</th>
+                {isEditor && <th className="py-2.5 px-3 w-16 text-right">Aksi</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-neutral-900 text-slate-700 dark:text-neutral-300">
@@ -299,48 +345,58 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
                 <tr key={alt.id} className="hover:bg-slate-50/70 dark:hover:bg-neutral-900/50 transition-colors">
                   <td className="py-3 px-4 font-mono font-semibold text-blue-700 dark:text-blue-400">{alt.code}</td>
                   <td className="py-3 px-4">
-                    <input
-                      type="text"
-                      value={alt.name}
-                      onChange={(e) =>
-                        onUpdateAlternativeInfo({ ...alt, name: e.target.value })
-                      }
-                      className="w-full bg-transparent font-medium text-slate-900 dark:text-white border-b border-transparent hover:border-slate-300 dark:hover:border-neutral-700 focus:border-blue-500 focus:outline-hidden py-0.5"
-                    />
+                    {isEditor ? (
+                      <input
+                        type="text"
+                        value={alt.name}
+                        onChange={(e) =>
+                          onUpdateAlternativeInfo({ ...alt, name: e.target.value })
+                        }
+                        className="w-full bg-transparent font-medium text-slate-900 dark:text-white border-b border-transparent hover:border-slate-300 dark:hover:border-neutral-700 focus:border-blue-500 focus:outline-hidden py-0.5"
+                      />
+                    ) : (
+                      <span className="font-medium text-slate-900 dark:text-white py-0.5 block">{alt.name}</span>
+                    )}
                   </td>
 
                   {/* Criteria score inputs */}
                   {criteria.map((c) => {
                     const score = alt.scores[c.id] ?? 0;
                     return (
-                      <td key={c.id} className="py-3 px-3 text-center">
-                        <input
-                          type="number"
-                          min="1"
-                          max="100"
-                          step="1"
-                          value={score}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            onUpdateAlternativeScore(alt.id, c.id, isNaN(val) ? 0 : val);
-                          }}
-                          className="w-16 text-center py-1 rounded border border-slate-200 dark:border-neutral-800 focus:border-blue-500 focus:outline-hidden font-mono text-slate-900 dark:text-white bg-white dark:bg-black"
-                        />
+                      <td key={c.id} className="py-3 px-3 text-center font-mono">
+                        {isEditor ? (
+                          <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            step="1"
+                            value={score}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              onUpdateAlternativeScore(alt.id, c.id, isNaN(val) ? 0 : val);
+                            }}
+                            className="w-16 text-center py-1 rounded border border-slate-200 dark:border-neutral-800 focus:border-blue-500 focus:outline-hidden font-mono text-slate-900 dark:text-white bg-white dark:bg-black"
+                          />
+                        ) : (
+                          <span className="font-semibold text-slate-900 dark:text-white">{score}</span>
+                        )}
                       </td>
                     );
                   })}
 
-                  <td className="py-3 px-3 text-right">
-                    {alternatives.length > 2 && (
-                      <button
-                        onClick={() => onDeleteAlternative(alt.id)}
-                        className="p-1 rounded text-slate-400 dark:text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-neutral-900 transition"
-                        title="Hapus toko ini"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </td>
+                  {isEditor && (
+                    <td className="py-3 px-3 text-right">
+                      {alternatives.length > 2 && (
+                        <button
+                          onClick={() => onDeleteAlternative(alt.id)}
+                          className="p-1 rounded text-slate-400 dark:text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-neutral-900 transition"
+                          title="Hapus toko ini"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -349,7 +405,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
       </div>
 
       {/* MODAL: Tambah Kriteria */}
-      {showAddCritModal && (
+      {showAddCritModal && isEditor && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-black rounded-xl shadow-xl border border-slate-200 dark:border-neutral-900 w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-neutral-900">
@@ -427,7 +483,7 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
       )}
 
       {/* MODAL: Tambah Toko Ulos */}
-      {showAddAltModal && (
+      {showAddAltModal && isEditor && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-black rounded-xl shadow-xl border border-slate-200 dark:border-neutral-900 w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-neutral-900">
@@ -476,3 +532,4 @@ export const DataMentahTab: React.FC<DataMentahTabProps> = ({
     </div>
   );
 };
+

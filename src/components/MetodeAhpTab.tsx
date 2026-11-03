@@ -7,10 +7,12 @@ import {
   Calculator,
   Table,
   Check,
-  BarChart3
+  BarChart3,
+  Lock
 } from 'lucide-react';
 import { Alternative, Criterion, AHPResult } from '../types/spk';
 import { SAATY_SCALE_DESCRIPTIONS } from '../data/defaultData';
+import { useAccess } from '../context/AccessContext';
 
 interface MetodeAhpTabProps {
   criteria: Criterion[];
@@ -29,6 +31,7 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
   onUpdateAltPairwiseValue,
   onResetAhpMatrix,
 }) => {
+  const { isEditor } = useAccess();
   const [selectedAltCritId, setSelectedAltCritId] = useState<string>(criteria[0]?.id || 'c1');
 
   const {
@@ -57,6 +60,23 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Viewer Banner */}
+      {!isEditor && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between text-amber-900 dark:text-amber-200 shadow-xs">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
+              <Lock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">Mode Viewer (Hanya Lihat)</h4>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                Matriks perbandingan berpasangan Saaty dikunci. Beralih ke Mode Editor untuk mengubah bobot perbandingan kriteria atau alternatif.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Banner & Explanation */}
       <div className="bg-white dark:bg-black rounded-xl p-5 text-slate-800 dark:text-neutral-100 border border-slate-200/90 dark:border-neutral-900 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
@@ -74,13 +94,15 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={onResetAhpMatrix}
-          className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-neutral-900 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-800 transition text-xs font-medium shrink-0 self-start md:self-auto shadow-2xs"
-        >
-          <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-neutral-400" />
-          <span>Reset Matriks Baku Excel</span>
-        </button>
+        {isEditor && (
+          <button
+            onClick={onResetAhpMatrix}
+            className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-neutral-900 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-800 transition text-xs font-medium shrink-0 self-start md:self-auto shadow-2xs cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-neutral-400" />
+            <span>Reset Matriks Baku Excel</span>
+          </button>
+        )}
       </div>
 
       {/* PANDUAN TEORI SKALA PENILAIAN SAATY */}
@@ -256,19 +278,23 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
 
                     if (isUpper) {
                       return (
-                        <td key={colC.id} className="py-2.5 px-3 text-center bg-blue-50/30 dark:bg-neutral-950">
-                          <input
-                            type="number"
-                            step="0.0001"
-                            min="0.0001"
-                            max="9"
-                            value={cellVal}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value);
-                              onUpdatePairwiseValue(i, j, isNaN(val) ? 1 : val);
-                            }}
-                            className="w-20 text-xs text-center font-mono font-semibold py-1 px-1 rounded border border-blue-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-blue-900 dark:text-neutral-100 focus:outline-hidden focus:border-blue-500 shadow-2xs"
-                          />
+                        <td key={colC.id} className="py-2.5 px-3 text-center bg-blue-50/30 dark:bg-neutral-950 font-mono">
+                          {isEditor ? (
+                            <input
+                              type="number"
+                              step="0.0001"
+                              min="0.0001"
+                              max="9"
+                              value={cellVal}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                onUpdatePairwiseValue(i, j, isNaN(val) ? 1 : val);
+                              }}
+                              className="w-20 text-xs text-center font-mono font-semibold py-1 px-1 rounded border border-blue-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-blue-900 dark:text-neutral-100 focus:outline-hidden focus:border-blue-500 shadow-2xs"
+                            />
+                          ) : (
+                            <span className="font-semibold text-blue-900 dark:text-blue-400">{cellVal.toFixed(4)}</span>
+                          )}
                         </td>
                       );
                     }
@@ -426,18 +452,22 @@ export const MetodeAhpTab: React.FC<MetodeAhpTabProps> = ({
 
                       if (i < j && onUpdateAltPairwiseValue) {
                         return (
-                          <td key={colAlt.id} className="py-2 px-3 text-center bg-blue-50/20 dark:bg-neutral-950">
-                            <input
-                              type="number"
-                              step="0.0001"
-                              min="0.0001"
-                              value={val}
-                              onChange={(e) => {
-                                const v = parseFloat(e.target.value);
-                                onUpdateAltPairwiseValue(selectedAltCritId, i, j, isNaN(v) ? 1 : v);
-                              }}
-                              className="w-16 text-xs text-center font-mono py-0.5 px-1 rounded border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100"
-                            />
+                          <td key={colAlt.id} className="py-2 px-3 text-center bg-blue-50/20 dark:bg-neutral-950 font-mono">
+                            {isEditor ? (
+                              <input
+                                type="number"
+                                step="0.0001"
+                                min="0.0001"
+                                value={val}
+                                onChange={(e) => {
+                                  const v = parseFloat(e.target.value);
+                                  onUpdateAltPairwiseValue(selectedAltCritId, i, j, isNaN(v) ? 1 : v);
+                                }}
+                                className="w-16 text-xs text-center font-mono py-0.5 px-1 rounded border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100"
+                              />
+                            ) : (
+                              <span className="font-semibold text-slate-800 dark:text-neutral-200">{val.toFixed(4)}</span>
+                            )}
                           </td>
                         );
                       }
